@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+  <% if (files) { %>
+    <ul>
+      <% files.forEach(file => { %>
+        <li>
+          <% if (file.type === 'folder') { %>
+            <a href="?path=<%= file.path %>"><%= file.name %></a>
+          <% } else { %>
+            <a href="/show?path=<%= file.path %>"><%= file.name %></a>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+    <% } %>
+</body>
+</html>

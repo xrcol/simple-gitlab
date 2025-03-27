@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    body {
+      padding-inline: 20px;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pdfjs-dist/web/pdf_viewer.css">
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist/build/pdf.mjs" type="module"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist/web/pdf_viewer.mjs" type="module"></script>
+</head>
+<body>
+  <% if (!path.endsWith('.pdf')) { %>
+    <% if (content) { %>
+      <pre><%= content %></pre>
+    <% } %>
+  <% } %>
+  <canvas id="the-canvas"></canvas>
+  <% if (path.endsWith('.pdf') && content) { %>
+    <script type="module">
+      var content = "<%- content %>";
+      var { pdfjsLib } = globalThis;
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist/build/pdf.worker.mjs';
+
+      const loadingTask = pdfjsLib.getDocument({data: atob(content)});
+      const container = document.getElementById('container');
+      const eventBus = new pdfjsViewer.EventBus();
+      loadingTask.promise.then(function(pdf) {
+        pdf.getPage(1).then(function(page) {
+
+          var scale = 1.5;
+          var viewport = page.getViewport({ scale: scale });
+          var outputScale = window.devicePixelRatio || 1;
+          var canvas = document.getElementById('the-canvas');
+          var context = canvas.getContext('2d');
+          canvas.height = Math.floor(viewport.height * outputScale);
+          canvas.width = Math.floor(viewport.width * outputScale);
+          canvas.style.height = Math.floor(viewport.height) + 'px';
+          canvas.style.width = Math.floor(viewport.width) + 'px';
+
+          var transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
+          var renderContext = {
+            canvasContext: context,
+            transform: transform,
+            viewport: viewport
+          };
+          page.render(renderContext);
+        });
+      });
+    </script>
+  <% } %>
+</body>
+</html>
